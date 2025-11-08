@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Assistant | PDF Chat Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #3b82f6;
+      --secondary: #8b5cf6;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --dark-1: #0f172a;
+      --dark-2: #1e293b;
+      --dark-3: #334155;
+      --light-1: #f8fafc;
+      --light-2: #e2e8f0;
+      --light-3: #cbd5e1;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #475569;
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      --sidebar-width: 280px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark-1);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--dark-2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--gradient);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .logo-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .new-chat-btn {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .new-chat-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .upload-section {
+      background: var(--dark-1);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    .upload-area.uploading {
+      border-color: var(--warning);
+      background: rgba(245, 158, 11, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+
+    .upload-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .upload-btn {
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .upload-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .file-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-info {
+      background: var(--dark-3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .file-icon {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    .file-details {
+      flex: 1;
+    }
+
+    .file-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+      color: var(--text-primary);
+    }
+
+    .file-size {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .file-action {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .file-action:hover {
+      color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .hide-sidebar-btn {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .hide-sidebar-btn:hover {
+      background: var(--dark-3);
+      color: var(--text-primary);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--dark-1);
+    }
+
+    .top-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--dark-2);
+    }
+
+    .menu-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-btn:hover {
+      color: var(--text-primary);
+      background: var(--dark-3);
+    }
+
+    .chat-info {
+      text-align: center;
+    }
+
+    .chat-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .chat-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chat-container {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .welcome-section {
+      text-align: center;
+      max-width: 600px;
+      margin: 80px auto;
+    }
+
+    .welcome-icon {
+      font-size: 4rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+
+    .welcome-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-text {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 30px;
+    }
+
+    .feature-card {
+      background: var(--dark-2);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .feature-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .feature-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Messages */
+    .message {
+      display: flex;
+      gap: 12px;
+      max-width: 80%;
+      animation: messageSlide 0.3s ease-out;
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .user-message {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .user-avatar {
+      background: var(--gradient);
+    }
+
+    .bot-avatar {
+      background: var(--dark-3);
+    }
+
+    .message-content {
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-message .message-content {
+      background: var(--primary);
+      border-bottom-right-radius: 6px;
+      color: white;
+    }
+
+    .bot-message .message-content {
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 6px;
+      color: var(--text-primary);
+    }
+
+    /* Input Section */
+    .input-section {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--dark-2);
+    }
+
+    .input-container {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--dark-1);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.3s ease;
+      resize: none;
+      min-height: 52px;
+      max-height: 120px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .send-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .send-btn:disabled {
+      background: var(--dark-3);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .quick-action {
+      padding: 8px 14px;
+      background: var(--dark-1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .quick-action:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 6px;
+      padding: 14px 18px;
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-bottom-left-radius: 6px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+      30% {
+        transform: translateY(-5px);
+        opacity: 1;
+      }
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin: 10px 0;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+    }
+
+    /* Progress */
+    .upload-progress {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--warning);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Scrollbar */
+    .chat-container::-webkit-scrollbar,
+    .sidebar-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-container::-webkit-scrollbar-track,
+    .sidebar-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+
+    .chat-container::-webkit-scrollbar-thumb,
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        z-index: 1000;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .message {
+        max-width: 90%;
+      }
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar-hidden .main-content {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <div class="logo-text">AI Assistant</div>
+        </div>
+      </div>
+
+      <div class="sidebar-content">
+        <button class="new-chat-btn" id="newChatBtn">
+          <i class="fas fa-plus"></i>
+          New Chat
+        </button>
+
+        <div class="upload-section">
+          <div class="section-title">
+            <i class="fas fa-file-upload"></i>
+            Upload PDF
+          </div>
+          <div class="upload-area" id="uploadArea">
+            <i class="upload-icon fas fa-cloud-upload-alt"></i>
+            <div class="upload-text">Drop PDF here or click to browse</div>
+            <div class="upload-text" style="font-size: 0.7rem; color: var(--text-muted);">
+              Click anywhere to select file
+            </div>
+            <input type="file" class="file-input" id="fileInput" accept=".pdf">
+            <div id="uploadProgress" class="upload-progress" style="display: none;">
+              <i class="fas fa-spinner loading-spinner"></i>
+              <span>Processing document...</span>
+            </div>
+          </div>
+          <div id="uploadMessage"></div>
+
+          <div class="file-info" id="fileInfo" style="display: none;">
+            <div class="file-item">
+              <i class="file-icon fas fa-file-pdf"></i>
+              <div class="file-details">
+                <div class="file-name" id="fileName">document.pdf</div>
+                <div class="file-size" id="fileSize">0 MB</div>
+              </div>
+              <div class="file-actions">
+                <button class="file-action" id="clearFile" title="Remove document">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="hide-sidebar-btn" id="hideSidebarBtn">
+          <i class="fas fa-chevron-left"></i>
+          Hide Sidebar
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="top-bar">
+        <button class="menu-btn" id="menuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="chat-info">
+          <div class="chat-title">PDF Chat Assistant</div>
+          <div class="chat-subtitle">Ask questions about your documents</div>
+        </div>
+        <div style="width: 40px;"></div> <!-- Spacer for alignment -->
+      </div>
+
+      <div class="chat-container" id="chatContainer">
+        <div class="welcome-section">
+          <i class="welcome-icon fas fa-robot"></i>
+          <div class="welcome-title">Welcome to DeepSeek AI</div>
+          <div class="welcome-text">
+            Upload a PDF document and start asking questions. I can help you summarize content, 
+            extract key information, and explain complex concepts from your documents.
+          </div>
+          
+          <div class="features-grid">
+            <div class="feature-card">
+              <i class="feature-icon fas fa-file-alt"></i>
+              <div class="feature-title">Document Analysis</div>
+              <div class="feature-desc">Deep analysis of PDF content</div>
+            </div>
+            <div class="feature-card">
+              <i class="feature-icon fas fa-lightbulb"></i>
+              <div class="feature-title">Smart Q&A</div>
+              <div class="feature-desc">Ask any question about your document</div>
+            </div>
+            <div class="feature-card">
+              <i class="feature-icon fas fa-chart-line"></i>
+              <div class="feature-title">Key Insights</div>
+              <div class="feature-desc">Extract important information</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-section">
+        <div class="input-container">
+          <textarea 
+            class="chat-input" 
+            id="userInput" 
+            placeholder="Ask a question about your document..." 
+            rows="1"
+            disabled
+          ></textarea>
+          <button class="send-btn" id="sendButton" disabled>
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+        
+        <div class="quick-actions" id="quickActions" style="display: none;">
+          <div class="quick-action" data-question="Summarize this document">Summarize</div>
+          <div class="quick-action" data-question="What are the key points?">Key Points</div>
+          <div class="quick-action" data-question="Who are the authors?">Authors</div>
+          <div class="quick-action" data-question="Explain the main concepts">Explain Concepts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class PDFChatApp {
+      constructor() {
+        this.isUploading = false;
+        this.currentFile = null;
+        this.isSidebarOpen = true;
+        this.init();
+      }
+
+      init() {
+        this.sidebar = document.querySelector('.sidebar');
+        this.appContainer = document.querySelector('.app-container');
+        this.menuBtn = document.getElementById('menuBtn');
+        this.hideSidebarBtn = document.getElementById('hideSidebarBtn');
+        this.uploadArea = document.getElementById('uploadArea');
+        this.fileInput = document.getElementById('fileInput');
+        this.uploadProgress = document.getElementById('uploadProgress');
+        this.uploadMessage = document.getElementById('uploadMessage');
+        this.fileInfo = document.getElementById('fileInfo');
+        this.fileName = document.getElementById('fileName');
+        this.fileSize = document.getElementById('fileSize');
+        this.clearFile = document.getElementById('clearFile');
+        this.chatContainer = document.getElementById('chatContainer');
+        this.userInput = document.getElementById('userInput');
+        this.sendButton = document.getElementById('sendButton');
+        this.quickActions = document.getElementById('quickActions');
+        this.newChatBtn = document.getElementById('newChatBtn');
+
+        this.bindEvents();
+        this.setupAutoResize();
+        this.checkMobileView();
+      }
+
+      setupAutoResize() {
+        this.userInput.addEventListener('input', () => {
+          this.userInput.style.height = 'auto';
+          this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+        });
+      }
+
+      bindEvents() {
+        // Sidebar toggle
+        this.menuBtn.addEventListener('click', () => this.toggleSidebar());
+        this.hideSidebarBtn.addEventListener('click', () => this.hideSidebar());
+
+        // File upload events - SINGLE CLICK AUTOMATIC UPLOAD
+        this.fileInput.addEventListener('change', (e) => {
+          if (e.target.files.length > 0) {
+            this.handleFileUpload(e.target.files[0]);
+          }
+        });
+
+        // Drag and drop
+        this.uploadArea.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!this.isUploading) {
+            this.uploadArea.style.borderColor = 'var(--primary)';
+            this.uploadArea.style.background = 'rgba(37, 99, 235, 0.05)';
+          }
+        });
+
+        this.uploadArea.addEventListener('dragleave', () => {
+          if (!this.isUploading) {
+            this.uploadArea.style.borderColor = 'var(--border)';
+            this.uploadArea.style.background = 'transparent';
+          }
+        });
+
+        this.uploadArea.addEventListener('drop', (e) => {
+          e.preventDefault();
+          this.uploadArea.style.borderColor = 'var(--border)';
+          this.uploadArea.style.background = 'transparent';
+          
+          if (this.isUploading) return;
+
+          if (e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if (file.type === 'application/pdf') {
+              this.handleFileUpload(file);
+            } else {
+              this.showAlert('Please upload a PDF file.', 'error');
+            }
+          }
+        });
+
+        // Chat events
+        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.userInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.sendMessage();
+          }
+        });
+
+        // File actions
+        this.clearFile.addEventListener('click', () => this.clearCurrentFile());
+        this.newChatBtn.addEventListener('click', () => this.startNewChat());
+
+        // Quick actions
+        this.quickActions.addEventListener('click', (e) => {
+          if (e.target.classList.contains('quick-action')) {
+            const question = e.target.getAttribute('data-question');
+            this.userInput.value = question;
+            this.userInput.focus();
+          }
+        });
+      }
+
+      toggleSidebar() {
+        this.isSidebarOpen = !this.isSidebarOpen;
+        this.sidebar.classList.toggle('open', this.isSidebarOpen);
+        this.appContainer.classList.toggle('sidebar-hidden', !this.isSidebarOpen);
+      }
+
+      hideSidebar() {
+        this.isSidebarOpen = false;
+        this.sidebar.classList.remove('open');
+        this.appContainer.classList.add('sidebar-hidden');
+      }
+
+      checkMobileView() {
+        if (window.innerWidth <= 768) {
+          this.hideSidebar();
+        }
+      }
+
+      async handleFileUpload(file) {
+        if (this.isUploading) {
+          this.showAlert('Please wait for the current upload to complete.', 'warning');
+          return;
+        }
+
+        this.setUploadState(true);
+        this.showAlert('Uploading and processing PDF...', 'warning');
+
+        const formData = new FormData();
+        formData.append('pdf', file);
+
+        try {
+          const response = await fetch("/upload", {
+            method: "POST",
+            body: formData
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            this.currentFile = data.file;
+            this.showFileInfo(data.file);
+            this.showAlert('PDF uploaded and processed successfully!', 'success');
+            this.showWelcomeMessage();
+            this.setChatState(true);
+            
+            // Auto-hide sidebar on mobile after upload
+            if (window.innerWidth <= 768) {
+              this.hideSidebar();
+            }
+          } else {
+            this.showAlert(data.message, 'error');
+          }
+        } catch (error) {
+          this.showAlert('Upload failed. Please check your connection and try again.', 'error');
+        } finally {
+          this.setUploadState(false);
+          this.fileInput.value = '';
+        }
+      }
+
+      showFileInfo(file) {
+        this.fileName.textContent = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+        this.fileSize.textContent = this.formatFileSize(file.size);
+        this.fileInfo.style.display = 'block';
+      }
+
+      showWelcomeMessage() {
+        this.chatContainer.innerHTML = `
+          <div class="message bot-message">
+            <div class="message-avatar bot-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <strong>Document Ready for Analysis</strong><br><br>
+              I've successfully processed "${this.currentFile.name}". You can now ask me questions about this document. 
+              Try asking about the content, key points, summaries, or specific information you're looking for.
+            </div>
+          </div>
+        `;
+        this.quickActions.style.display = 'flex';
+      }
+
+      startNewChat() {
+        this.clearCurrentFile();
+        this.chatContainer.innerHTML = `
+          <div class="welcome-section">
+            <i class="welcome-icon fas fa-robot"></i>
+            <div class="welcome-title">Welcome to DeepSeek AI</div>
+            <div class="welcome-text">
+              Upload a PDF document and start asking questions. I can help you summarize content, 
+              extract key information, and explain complex concepts from your documents.
+            </div>
+            
+            <div class="features-grid">
+              <div class="feature-card">
+                <i class="feature-icon fas fa-file-alt"></i>
+                <div class="feature-title">Document Analysis</div>
+                <div class="feature-desc">Deep analysis of PDF content</div>
+              </div>
+              <div class="feature-card">
+                <i class="feature-icon fas fa-lightbulb"></i>
+                <div class="feature-title">Smart Q&A</div>
+                <div class="feature-desc">Ask any question about your document</div>
+              </div>
+              <div class="feature-card">
+                <i class="feature-icon fas fa-chart-line"></i>
+                <div class="feature-title">Key Insights</div>
+                <div class="feature-desc">Extract important information</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      async sendMessage() {
+        const message = this.userInput.value.trim();
+        if (!message) return;
+
+        this.addMessage(message, 'user');
+        this.userInput.value = '';
+        this.userInput.style.height = 'auto';
+        this.setChatState(false);
+        this.showTypingIndicator();
+
+        try {
+          const response = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+          });
+          
+          const data = await response.json();
+          this.removeTypingIndicator();
+          this.addMessage(data.response, 'bot');
+          this.setChatState(true);
+          
+        } catch (error) {
+          this.removeTypingIndicator();
+          this.addMessage("Sorry, I encountered an error while processing your request. Please try again.", 'bot');
+          this.setChatState(true);
+        }
+      }
+
+      addMessage(content, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = `message-avatar ${sender}-avatar`;
+        avatarDiv.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = content;
+        
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        
+        this.chatContainer.appendChild(messageDiv);
+        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+      }
+
+      showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message';
+        typingDiv.id = 'typingIndicator';
+        
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar bot-avatar';
+        avatarDiv.innerHTML = '<i class="fas fa-robot"></i>';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'typing-indicator';
+        contentDiv.innerHTML = `
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        `;
+        
+        typingDiv.appendChild(avatarDiv);
+        typingDiv.appendChild(contentDiv);
+        
+        this.chatContainer.appendChild(typingDiv);
+        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+      }
+
+      removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+      }
+
+      clearCurrentFile() {
+        this.currentFile = null;
+        this.fileInfo.style.display = 'none';
+        this.quickActions.style.display = 'none';
+        this.setChatState(false);
+        
+        // Clear backend session
+        fetch("/clear", { method: "POST" });
+      }
+
+      setUploadState(uploading) {
+        this.isUploading = uploading;
+        this.uploadProgress.style.display = uploading ? 'flex' : 'none';
+        this.uploadArea.classList.toggle('uploading', uploading);
+      }
+
+      setChatState(enabled) {
+        this.userInput.disabled = !enabled;
+        this.sendButton.disabled = !enabled;
+        this.userInput.placeholder = enabled 
+          ? 'Ask a question about your document...' 
+          : 'Processing your request...';
+      }
+
+      showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = `
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'exclamation-triangle'}"></i>
+          ${message}
+        `;
+        
+        this.uploadMessage.innerHTML = '';
+        this.uploadMessage.appendChild(alertDiv);
+        
+        setTimeout(() => {
+          if (alertDiv.parentNode === this.uploadMessage) {
+            alertDiv.remove();
+          }
+        }, 5000);
+      }
+
+      formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+    }
+
+    // Initialize the application
+    const app = new PDFChatApp();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      app.checkMobileView();
+    });
+  </script>
+</body>
+</html>
