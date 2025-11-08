@@ -1,0 +1,9 @@
+flask
+requests
+sentence-transformers
+faiss-cpu
+pymupdf
+werkzeug
+gtts
+speechrecognition
+pydub
