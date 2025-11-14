@@ -25,7 +25,7 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # 🔑 OpenRouter API configuration
-API_KEY = "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"
+API_KEY = "sk-or-v1-cf0e013bbeceb65c0266ced0b95dc811341563315245599222ec18e7d99b5ac"
 MODEL = "deepseek/deepseek-chat"
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 
